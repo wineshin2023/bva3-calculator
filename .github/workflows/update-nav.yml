@@ -1,0 +1,19 @@
+name: Update NAV
+on:
+  schedule:
+    - cron: "0 10 * * 1-6"   # 台灣時間週一到週六 18:00
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 scripts/update_nav.py
+      - run: |
+          if git diff --quiet; then echo "No change"; exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "Update NAV data"
+          git push
