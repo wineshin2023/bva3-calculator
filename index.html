@@ -1,0 +1,595 @@
+line1
+  indented
+line3<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>BVA3 撥回試算</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+:root{
+  --bg:#eef2f1; --surface:#ffffff; --surface-2:#f6f8f7; --line:#d6dedb; --line-soft:#e5ebe9;
+  --ink:#172229; --ink-2:#4a5a60; --ink-3:#7a888c;
+  --accent:#0d6f5e; --accent-soft:#dcefe9; --accent-ink:#ffffff;
+  --gold:#9a6a0c; --gold-soft:#f6ecd4;
+  --stop:#a8412f; --stop-soft:#f7e3de;
+  --focus:#1b8a75;
+  --font:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+  --display:"Noto Serif TC","Songti TC",serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#101719; --surface:#172124; --surface-2:#1c282b; --line:#2c3a3e; --line-soft:#243135;
+    --ink:#e6eeec; --ink-2:#a9b8b6; --ink-3:#7c8c8b;
+    --accent:#4cc3a8; --accent-soft:#16352f; --accent-ink:#0b1a17;
+    --gold:#e2b456; --gold-soft:#3a2f17;
+    --stop:#ee8a76; --stop-soft:#3d221d;
+    --focus:#6fd8bf;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#101719; --surface:#172124; --surface-2:#1c282b; --line:#2c3a3e; --line-soft:#243135;
+  --ink:#e6eeec; --ink-2:#a9b8b6; --ink-3:#7c8c8b;
+  --accent:#4cc3a8; --accent-soft:#16352f; --accent-ink:#0b1a17;
+  --gold:#e2b456; --gold-soft:#3a2f17;
+  --stop:#ee8a76; --stop-soft:#3d221d;
+  --focus:#6fd8bf;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.55}
+.wrap{max-width:1040px;margin:0 auto;padding-inline:16px;padding-block:20px 48px}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+h1{font-family:var(--display);font-size:24px;line-height:1.25;margin:0;text-wrap:balance}
+.sub{color:var(--ink-3);font-size:13px;margin-top:2px}
+header.top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.internal{font-size:12px;color:var(--stop);background:var(--stop-soft);padding:3px 8px;border-radius:4px;font-weight:500}
+
+/* NAV strip */
+.navstrip{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:grid;grid-template-columns:auto 1fr;gap:6px 20px;align-items:center}
+.navbig{display:flex;align-items:baseline;gap:8px}
+.navbig .v{font-size:32px;font-weight:600;line-height:1}
+.navbig .d{color:var(--ink-3);font-size:13px}
+.navmeta{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--ink-2);justify-content:flex-end}
+.navfoot{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:var(--ink-3);border-top:1px solid var(--line-soft);padding-top:8px;margin-top:4px}
+.navfoot a{color:var(--accent)}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:500;padding:2px 9px;border-radius:999px;white-space:nowrap}
+.chip::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.chip.ok{color:var(--accent);background:var(--accent-soft)}
+.chip.gold{color:var(--gold);background:var(--gold-soft)}
+.chip.stop{color:var(--stop);background:var(--stop-soft)}
+.chip.mute{color:var(--ink-3);background:var(--surface-2)}
+@media (max-width:620px){.navstrip{grid-template-columns:1fr}.navmeta{justify-content:flex-start}}
+
+/* tabs */
+.tabs{display:flex;gap:4px;margin:18px 0 14px;border-bottom:1px solid var(--line)}
+.tab{appearance:none;background:none;border:0;border-bottom:2px solid transparent;margin-bottom:-1px;padding:9px 14px;font:inherit;font-weight:500;color:var(--ink-2);cursor:pointer}
+.tab[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent)}
+.tab:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:16px;align-items:start}
+@media (max-width:820px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px}
+.panel h2{font-size:15px;margin:0 0 12px;font-weight:700}
+.panel h3{font-size:12px;letter-spacing:.06em;color:var(--ink-3);font-weight:500;margin:18px 0 8px}
+.panel h3:first-child{margin-top:0}
+.sticky{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px)}
+@media (max-width:820px){.sticky{position:static}}
+
+label.f{display:block;font-size:13px;color:var(--ink-2);margin-bottom:4px}
+.field{display:flex;align-items:center;background:var(--surface-2);border:1px solid var(--line);border-radius:7px;padding:0 10px;min-height:42px}
+.field:focus-within{border-color:var(--focus)}
+.field input,.field select{flex:1;min-width:0;border:0;background:transparent;color:var(--ink);font:500 16px/1 var(--mono);padding:10px 0;outline:none}
+.field select{font-family:var(--font)}
+.field .unit{color:var(--ink-3);font-size:13px;white-space:nowrap}
+.hint{font-size:12px;color:var(--ink-3);margin-top:4px}
+.err{font-size:12px;color:var(--stop);margin-top:4px}
+
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:3px}
+.seg button{appearance:none;border:0;background:transparent;border-radius:6px;padding:7px 4px;font:inherit;font-size:13px;color:var(--ink-2);cursor:pointer;line-height:1.3}
+.seg button small{display:block;font-family:var(--mono);font-size:11px;color:var(--ink-3)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08);font-weight:500}
+.seg.two{grid-template-columns:repeat(2,1fr)}
+
+.pay{border:1px solid var(--line);border-radius:8px;padding:10px 12px;display:grid;grid-template-columns:auto 1fr auto;gap:4px 10px;align-items:center}
+.pay + .pay{margin-top:8px}
+.pay .tag{font-size:12px;color:var(--ink-3);grid-column:2}
+.pay .rm{grid-row:1/3;grid-column:3;appearance:none;border:0;background:none;color:var(--ink-3);cursor:pointer;font-size:18px;padding:4px 6px;border-radius:5px}
+.pay .rm:hover{color:var(--stop);background:var(--stop-soft)}
+.pay .kind{font-weight:500;font-size:13px}
+.pay .flds{grid-column:1/3;display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:8px}
+.pay .field{min-width:0}
+.pay .field{min-height:38px}
+.pay .field input{font-size:15px;padding:8px 0}
+.quick{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.quick button,.ghost{appearance:none;border:1px solid var(--line);background:var(--surface);color:var(--ink-2);border-radius:6px;padding:4px 10px;font:inherit;font-size:12px;cursor:pointer}
+.quick button:hover,.ghost:hover{border-color:var(--accent);color:var(--accent)}
+.addrow{margin-top:10px;width:100%;padding:8px;border-style:dashed;font-size:13px}
+
+.cond{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.toggle{display:flex;align-items:center;gap:10px;background:var(--surface-2);border:1px solid var(--line);border-radius:7px;padding:0 10px;min-height:42px;cursor:pointer;font-size:14px}
+.toggle input{width:18px;height:18px;accent-color:var(--gold)}
+.from{font-size:12px;color:var(--ink-3);margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.from button{appearance:none;border:0;background:none;color:var(--accent);font:inherit;font-size:12px;cursor:pointer;padding:0;text-decoration:underline}
+
+/* result */
+.total{background:var(--accent);color:var(--accent-ink);border-radius:9px;padding:14px 16px;margin-bottom:12px}
+.total .l{font-size:13px;opacity:.85}
+.total .v{font-size:34px;font-weight:600;line-height:1.15}
+.total .v small{font-size:15px;font-family:var(--font);font-weight:500;opacity:.85;margin-left:4px}
+.total .y{font-size:13px;opacity:.9}
+.total.zero{background:var(--surface-2);color:var(--ink-2);border:1px solid var(--line)}
+.kv{display:grid;grid-template-columns:1fr auto;gap:0;border-top:1px solid var(--line-soft)}
+.kv > div{padding:8px 0;border-bottom:1px solid var(--line-soft)}
+.kv .k{color:var(--ink-2);font-size:14px}
+.kv .k small{display:block;font-size:12px;color:var(--ink-3)}
+.kv .v{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums;font-weight:500}
+.kv .v.gold{color:var(--gold)}
+.kv .v.dim{color:var(--ink-3)}
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{font-weight:500;color:var(--ink-3);text-align:left;font-size:12px;padding:6px 8px;border-bottom:1px solid var(--line)}
+td{padding:8px;border-bottom:1px solid var(--line-soft);vertical-align:middle}
+th.r,td.r{text-align:right}
+td.r{font-family:var(--mono);font-variant-numeric:tabular-nums}
+tr.cur td{background:var(--accent-soft)}
+.warn{font-size:12px;line-height:1.5;color:var(--gold);background:var(--gold-soft);border-radius:7px;padding:8px 10px;margin-top:10px}
+.actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.btn{appearance:none;border:0;background:var(--ink);color:var(--bg);border-radius:7px;padding:9px 14px;font:inherit;font-weight:500;font-size:14px;cursor:pointer}
+.btn.sec{background:var(--surface-2);color:var(--ink);border:1px solid var(--line)}
+.toast{font-size:13px;color:var(--accent);align-self:center}
+.note{font-size:12px;color:var(--ink-3);margin-top:12px;line-height:1.6}
+
+/* chart */
+.chart svg{width:100%;height:auto;display:block}
+.chart .axis{fill:var(--ink-3);font:11px var(--mono)}
+.chart .grid-l{stroke:var(--line-soft);stroke-width:1}
+.chart .th{stroke:var(--gold);stroke-dasharray:4 4;stroke-width:1.2}
+.chart .th-l{fill:var(--gold);font:11px var(--font)}
+.chart .line{fill:none;stroke:var(--accent);stroke-width:2;stroke-linejoin:round}
+.chart .area{fill:var(--accent);opacity:.1}
+.chart .base{fill:var(--surface);stroke:var(--ink);stroke-width:1.5}
+.chart .last{fill:var(--accent)}
+.chart .last-l{fill:var(--ink);font:600 12px var(--mono)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--ink-3);margin-top:6px}
+.legend i{display:inline-block;width:14px;height:0;border-top:2px solid var(--accent);vertical-align:middle;margin-right:4px}
+.legend i.d{border-top:1.5px dashed var(--gold)}
+.legend i.o{width:9px;height:9px;border:1.5px solid var(--ink);border-radius:50%;background:var(--surface)}
+
+details.rules{margin-top:18px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:0 16px}
+details.rules summary{cursor:pointer;padding:12px 0;font-weight:500}
+details.rules ul{margin:0 0 14px;padding-left:18px;color:var(--ink-2);font-size:14px}
+details.rules li{margin:4px 0}
+details.rules a{color:var(--accent)}
+.foot{font-size:12px;color:var(--ink-3);margin-top:16px;line-height:1.6}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>鑫月雙享 BVA3 撥回試算</h1>
+      <div class="sub">超鑫動（EOA）委託投資帳戶 · 月撥回試算與反推</div>
+    </div>
+    <span class="internal">同事內部參考 · 請勿提供客戶</span>
+  </header>
+
+  <section class="navstrip" aria-label="最新淨值">
+    <div class="navbig"><span class="v num" id="navLatest">—</span><span class="d" id="navLatestDate"></span></div>
+    <div class="navmeta" id="navMeta"></div>
+    <div class="navfoot">
+      <span id="navUpdated"></span>
+      <a href="https://ilp.nanshanlife.com.tw/main.html?sUrl=$W$TFUND$TFUND02]DJHTM{A}EOA" target="_blank" rel="noopener">官網淨值頁 ↗</a>
+    </div>
+  </section>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab" role="tab" id="tab-calc" aria-selected="true" data-tab="calc">撥回試算</button>
+    <button class="tab" role="tab" id="tab-rev" aria-selected="false" data-tab="rev">反推保費</button>
+    <button class="tab" role="tab" id="tab-nav" aria-selected="false" data-tab="nav">淨值與撥回紀錄</button>
+  </nav>
+
+  <!-- ============ 試算 ============ -->
+  <section id="pane-calc" class="grid">
+    <div class="panel">
+      <h3>客戶類型（保費未滿 200 萬時影響費用率）</h3>
+      <div class="seg" id="typeSeg" role="group" aria-label="客戶類型">
+        <button type="button" data-type="normal" aria-pressed="true">一般<small>3.0%</small></button>
+        <button type="button" data-type="existing" aria-pressed="false">有效契約<small>2.8%</small></button>
+        <button type="button" data-type="maturity" aria-pressed="false">滿期金<small>2.7%</small></button>
+      </div>
+      <div class="hint">單筆 ≥ 200 萬一律 2.7%</div>
+
+      <h3>投入明細</h3>
+      <div id="pays"></div>
+      <button type="button" class="ghost addrow" id="addPay">＋ 加一筆超額保費</button>
+      <div class="err" id="payErr" hidden></div>
+
+      <h3>撥回條件</h3>
+      <div class="cond">
+        <div>
+          <label class="f" for="baseNav">撥回基準日淨值</label>
+          <div class="field"><input id="baseNav" inputmode="decimal" autocomplete="off"><span class="unit">元</span></div>
+        </div>
+        <div>
+          <span class="f" style="display:block;font-size:13px;color:var(--ink-2);margin-bottom:4px">檢視期間淨值</span>
+          <label class="toggle" for="exceeded"><input type="checkbox" id="exceeded"> 曾經 &gt; 10.3 元</label>
+        </div>
+      </div>
+      <div class="from" id="condFrom"></div>
+    </div>
+
+    <div class="panel sticky" id="result" aria-live="polite"></div>
+  </section>
+
+  <!-- ============ 反推 ============ -->
+  <section id="pane-rev" class="grid" hidden>
+    <div class="panel">
+      <h3>目標每月撥回</h3>
+      <div class="field"><input id="target" inputmode="numeric" autocomplete="off" value="10,000"><span class="unit">元 / 月</span></div>
+      <div class="quick" id="targetQuick">
+        <button type="button" data-v="5000">5,000</button><button type="button" data-v="10000">1 萬</button><button type="button" data-v="20000">2 萬</button><button type="button" data-v="30000">3 萬</button><button type="button" data-v="50000">5 萬</button>
+      </div>
+
+      <h3>以哪種情境達標</h3>
+      <div class="seg two" id="revMode" role="group" aria-label="情境">
+        <button type="button" data-mode="regular" aria-pressed="true">只靠定期撥回<small>0.042 / 單位</small></button>
+        <button type="button" data-mode="both" aria-pressed="false">定期＋加碼<small>0.092 / 單位</small></button>
+      </div>
+
+      <h3>進場淨值</h3>
+      <div class="field"><input id="revNav" inputmode="decimal" autocomplete="off"><span class="unit">元</span></div>
+      <div class="hint" id="revNavHint"></div>
+
+      <h3>客戶類型</h3>
+      <div class="seg" id="typeSeg2" role="group" aria-label="客戶類型">
+        <button type="button" data-type="normal" aria-pressed="true">一般<small>3.0%</small></button>
+        <button type="button" data-type="existing" aria-pressed="false">有效契約<small>2.8%</small></button>
+        <button type="button" data-type="maturity" aria-pressed="false">滿期金<small>2.7%</small></button>
+      </div>
+    </div>
+    <div class="panel sticky" id="revResult" aria-live="polite"></div>
+  </section>
+
+  <!-- ============ 淨值 ============ -->
+  <section id="pane-nav" hidden>
+    <div class="panel">
+      <h2>超鑫動（EOA）單位淨值</h2>
+      <div class="chart" id="chart"></div>
+      <div class="legend"><span><i></i>每日淨值</span><span><i class="d"></i>加碼門檻 10.3</span><span><i class="o"></i>撥回基準日</span></div>
+    </div>
+    <div class="panel" style="margin-top:16px">
+      <h2>每月撥回條件判定</h2>
+      <div class="tbl-wrap"><table id="monthTbl"></table></div>
+      <p class="note">基準日＝每月 20 日，遇非營業日順延到下一個有淨值的日期。檢視期間＝上月基準日的次一營業日到當月基準日（含）。這裡用淨值公布日當營業日，實際以公司認定為準。</p>
+    </div>
+  </section>
+
+  <details class="rules">
+    <summary>計算規則與出處</summary>
+    <ul>
+      <li><b>保費費用率</b>：單筆 ≥ 200 萬 → 2.7%；未滿 200 萬 → 一般 3.0%、有效契約 2.8%、滿期金 2.7%。躉繳與超額保費各自判斷。</li>
+      <li><b>單位數</b>＝保費 ×（1 − 費用率）÷ 進場淨值（試算四捨五入到小數 4 位）。</li>
+      <li><b>定期撥回</b>：基準日淨值 ≥ 8 元 → 每單位 0.042 元；低於 8 元當月不撥回。</li>
+      <li><b>加碼撥回</b>：檢視期間淨值<b>曾經</b> &gt; 10.3 元，<b>而且</b>基準日淨值 ≥ 8 元 → 每單位再加 0.050 元，每月以一次為限。</li>
+      <li><b>保費限制</b>：躉繳最低 30 萬、超額每次最低 1 萬、累計最高 8,000 萬。</li>
+      <li><b>解約費用</b>：第 1 到 6 保單年度依序 6%、5%、4%、3%、2%、1%，第 7 年起 0%。</li>
+      <li><b>待確認</b>：條款規定收益分配同日未滿 1,000 元不匯款、改投入停泊標的；是否適用於資產撥回，請向公司確認。</li>
+      <li>撥回金額不保證，撥回來源可能含本金。委託投資帳戶經理費每年 1.5%，已反映在淨值中。</li>
+      <li>出處：<a href="https://www.nanshanlife.com.tw/nanshanlife/portal-api/File/11224" target="_blank" rel="noopener">商品 DM</a>、<a href="https://www.nanshanlife.com.tw/nanshanlife/portal-api/File/11238" target="_blank" rel="noopener">保單條款</a>。驗算：DM 範例 30 萬、淨值 10 元 → 29,100 單位、定期 1,222 元、加碼 1,455 元。</li>
+    </ul>
+  </details>
+  <p class="foot">試算僅供內部參考，實際金額以保單條款及公司計算為準。</p>
+</div>
+
+<script id="nav-data" type="application/json">
+{"updated":"2026-09-21 19:36","navs":[["2026-08-03",10.00],["2026-08-04",10.00],["2026-08-05",10.05],["2026-08-06",10.07],["2026-08-07",9.98],["2026-08-10",10.08],["2026-08-11",10.11],["2026-08-12",10.18],["2026-08-13",10.25],["2026-08-14",10.28],["2026-08-17",10.26],["2026-08-18",10.16],["2026-08-19",10.03],["2026-08-20",10.05],["2026-08-21",9.94],["2026-08-24",9.90],["2026-08-25",9.93],["2026-08-26",10.02],["2026-08-27",10.06],["2026-08-28",10.11],["2026-08-31",10.03],["2026-09-01",10.12],["2026-09-02",10.01],["2026-09-03",9.89],["2026-09-04",10.01],["2026-09-08",10.04],["2026-09-09",10.05],["2026-09-10",10.03],["2026-09-11",9.92],["2026-09-14",9.89],["2026-09-15",9.79],["2026-09-16",9.86],["2026-09-17",9.85]]}
+</script>
+
+<script>
+(function(){
+"use strict";
+/* ---------- constants (from DM / 保單條款) ---------- */
+var REG = 0.042, BONUS = 0.050, REG_TH = 8, BONUS_TH = 10.3;
+var MIN_FIRST = 300000, MIN_EXTRA = 10000, MAX_TOTAL = 80000000, TIER = 2000000;
+var TYPE_RATE = {normal:0.030, existing:0.028, maturity:0.027}, HIGH_RATE = 0.027;
+var TYPE_NAME = {normal:"一般", existing:"有效契約", maturity:"滿期金"};
+
+/* ---------- helpers ---------- */
+function $(id){return document.getElementById(id)}
+function fmt(n){return Math.round(n).toLocaleString("zh-TW")}
+function fmt2(n){return n.toLocaleString("zh-TW",{minimumFractionDigits:2,maximumFractionDigits:2})}
+function nav2(n){return n.toFixed(2)}
+function pct(r){return (r*100).toFixed(1)+"%"}
+function parseMoney(s){var d=String(s||"").replace(/[^0-9]/g,"");return d?parseInt(d,10):0}
+function parseNum(s){var v=parseFloat(String(s||"").replace(/[^0-9.]/g,""));return isFinite(v)?v:0}
+function md(d){return d.slice(5).replace("-","/")}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function store(k,v){try{if(v===undefined)return localStorage.getItem("bva3."+k);localStorage.setItem("bva3."+k,v)}catch(e){return null}}
+function feeRate(amount,type){return amount>=TIER?HIGH_RATE:TYPE_RATE[type]}
+function units(amount,type,nav){return Math.round(amount*(1-feeRate(amount,type))/nav*1e4)/1e4}
+
+/* ---------- NAV data & month status ---------- */
+var TODAY=(function(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')})();
+var DATA = JSON.parse($("nav-data").textContent);
+var NAVS = DATA.navs.map(function(x){return {d:x[0],v:+x[1]}}).sort(function(a,b){return a.d<b.d?-1:1});
+var LATEST = NAVS[NAVS.length-1];
+
+function monthStatus(){
+  var out=[], first=NAVS[0].d, y=+first.slice(0,4), m=+first.slice(5,7), prevBase=null;
+  for(var guard=0; guard<240; guard++){
+    var mm=(m<10?"0":"")+m, target=y+"-"+mm+"-20";
+    var base=null;
+    for(var i=0;i<NAVS.length;i++){ if(NAVS[i].d>=target){base=NAVS[i];break} }
+    var lo=prevBase?prevBase.d:"0000", hi=base?base.d:"9999";
+    var period=NAVS.filter(function(n){return n.d>lo&&n.d<=hi});
+    var max=period.reduce(function(a,n){return n.v>a.v?n:a},{v:-1,d:""});
+    var e={y:y,m:m,target:target,base:base,start:period.length?period[0].d:null,max:period.length?max:null,pending:!base};
+    if(base){e.reg=base.v>=REG_TH; e.bonus=e.reg&&max.v>BONUS_TH}
+    else{e.hit=period.length&&max.v>BONUS_TH}
+    out.push(e);
+    if(!base) break;
+    prevBase=base; m++; if(m>12){m=1;y++}
+  }
+  return out;
+}
+var MONTHS = monthStatus();
+var CUR = MONTHS[MONTHS.length-1];                 // pending (upcoming) period
+var LASTDONE = MONTHS.length>1?MONTHS[MONTHS.length-2]:null;
+
+function zone(v){
+  if(v<REG_TH) return {c:"stop",t:"低於 8 元：不撥回"};
+  if(v>BONUS_TH) return {c:"gold",t:"高於 10.3：觸發加碼"};
+  return {c:"ok",t:"8–10.3 元：定期撥回"};
+}
+
+function renderStrip(){
+  $("navLatest").textContent=nav2(LATEST.v);
+  $("navLatestDate").textContent=LATEST.d.replace(/-/g,"/")+" 淨值";
+  var z=zone(LATEST.v), html='<span class="chip '+z.c+'">'+z.t+'</span>';
+  if(CUR.max){
+    html+='<span>'+CUR.m+' 月加碼檢視期間（'+md(CUR.start)+' 起）最高 <b class="num">'+nav2(CUR.max.v)+'</b></span>';
+    html+= CUR.hit ? '<span class="chip gold">'+CUR.m+' 月加碼條件已觸發</span>' : '<span class="chip mute">尚未觸發加碼</span>';
+  }
+  if(LASTDONE){
+    html+='<span>上次基準日 '+md(LASTDONE.base.d)+'：'+(LASTDONE.bonus?"定期＋加碼":LASTDONE.reg?"定期撥回":"不撥回")+'</span>';
+  }
+  $("navMeta").innerHTML=html;
+  $("navUpdated").textContent="資料更新："+DATA.updated+"（官網淨值約晚 1–2 個營業日公布）";
+}
+
+/* ---------- state ---------- */
+var state = {
+  type: store("type")||"normal",
+  pays: [{amt:1000000, nav:LATEST.v}],
+  revMode: "regular"
+};
+if(!TYPE_RATE[state.type]) state.type="normal";
+
+/* ---------- tabs ---------- */
+function showTab(t){
+  document.querySelectorAll(".tab").forEach(function(b){b.setAttribute("aria-selected",b.dataset.tab===t?"true":"false")});
+  $("pane-calc").hidden=t!=="calc"; $("pane-rev").hidden=t!=="rev"; $("pane-nav").hidden=t!=="nav";
+  store("tab",t);
+  if(t==="nav") renderChart();
+}
+document.querySelectorAll(".tab").forEach(function(b){b.addEventListener("click",function(){showTab(b.dataset.tab)})});
+
+/* ---------- type segs (shared) ---------- */
+function syncType(){
+  ["typeSeg","typeSeg2"].forEach(function(id){
+    $(id).querySelectorAll("button").forEach(function(b){b.setAttribute("aria-pressed",b.dataset.type===state.type?"true":"false")});
+  });
+}
+["typeSeg","typeSeg2"].forEach(function(id){
+  $(id).addEventListener("click",function(e){
+    var b=e.target.closest("button"); if(!b) return;
+    state.type=b.dataset.type; store("type",state.type); syncType(); calc(); rev();
+  });
+});
+
+/* ---------- payments ---------- */
+function renderPays(){
+  var box=$("pays"); box.innerHTML="";
+  state.pays.forEach(function(p,i){
+    var row=document.createElement("div"); row.className="pay";
+    row.innerHTML=
+      '<span class="kind">'+(i===0?"躉繳保費":"超額保費 "+i)+'</span>'+
+      '<span class="tag" id="tag'+i+'"></span>'+
+      (i>0?'<button type="button" class="rm" aria-label="移除這筆" data-i="'+i+'">×</button>':'')+
+      '<div class="flds">'+
+        '<div class="field"><input id="amt'+i+'" inputmode="numeric" autocomplete="off" aria-label="保費金額" value="'+(p.amt?p.amt.toLocaleString("zh-TW"):"")+'"><span class="unit">元</span></div>'+
+        '<div class="field"><input id="pnav'+i+'" inputmode="decimal" autocomplete="off" aria-label="進場淨值" value="'+(p.nav||"")+'"><span class="unit">淨值</span></div>'+
+      '</div>'+
+      (i===0?'<div class="quick" style="grid-column:1/-1"><button type="button" data-q="300000">30 萬</button><button type="button" data-q="1000000">100 萬</button><button type="button" data-q="2000000">200 萬</button><button type="button" data-q="5000000">500 萬</button><button type="button" data-q="10000000">1,000 萬</button></div>':'');
+    box.appendChild(row);
+    var a=$("amt"+i), n=$("pnav"+i);
+    a.addEventListener("input",function(){
+      var v=parseMoney(a.value); a.value=v?v.toLocaleString("zh-TW"):""; state.pays[i].amt=v; calc();
+    });
+    n.addEventListener("input",function(){state.pays[i].nav=parseNum(n.value); calc()});
+  });
+  box.querySelectorAll(".rm").forEach(function(b){b.addEventListener("click",function(){state.pays.splice(+b.dataset.i,1);renderPays();calc()})});
+  box.querySelectorAll("[data-q]").forEach(function(b){b.addEventListener("click",function(){state.pays[0].amt=+b.dataset.q;$("amt0").value=(+b.dataset.q).toLocaleString("zh-TW");calc()})});
+}
+$("addPay").addEventListener("click",function(){state.pays.push({amt:100000,nav:LATEST.v});renderPays();calc()});
+
+/* ---------- condition defaults from data ---------- */
+function condDefaults(){
+  var v = CUR.pending ? LATEST.v : CUR.base.v;
+  $("baseNav").value=nav2(v);
+  $("exceeded").checked=!!CUR.hit;
+  $("condFrom").innerHTML='預設帶入最新淨值 '+nav2(LATEST.v)+'（'+md(LATEST.d)+'）與 '+CUR.m+' 月檢視期間至今的判定。<button type="button" id="resetCond">恢復預設</button>';
+  $("resetCond").addEventListener("click",function(){condDefaults();calc()});
+}
+$("baseNav").addEventListener("input",calc);
+$("exceeded").addEventListener("change",calc);
+
+/* ---------- forward calc ---------- */
+var lastSummary="";
+function calc(){
+  var err=[], total=0, U=0, fee=0, rows=[];
+  state.pays.forEach(function(p,i){
+    var tag=$("tag"+i);
+    if(!p.amt||!p.nav){ if(tag) tag.textContent=""; return; }
+    var r=feeRate(p.amt,state.type), u=units(p.amt,state.type,p.nav);
+    total+=p.amt; U+=u; fee+=p.amt*r;
+    rows.push({i:i,amt:p.amt,nav:p.nav,r:r,u:u});
+    if(tag) tag.innerHTML='費用率 <span class="num">'+pct(r)+'</span> · <span class="num">'+fmt2(u)+'</span> 單位';
+    if(i===0&&p.amt<MIN_FIRST) err.push("躉繳保費最低 30 萬元");
+    if(i>0&&p.amt<MIN_EXTRA) err.push("超額保費每次最低 1 萬元");
+  });
+  if(total>MAX_TOTAL) err.push("累計保費超過上限 8,000 萬元");
+  var pe=$("payErr"); pe.hidden=!err.length; pe.textContent=err.join("；");
+
+  var bn=parseNum($("baseNav").value), ex=$("exceeded").checked;
+  var reg=bn>=REG_TH, bon=reg&&ex;
+  var mReg=reg?U*REG:0, mBon=bon?U*BONUS:0, m=mReg+mBon;
+  var box=$("result");
+  if(!U){box.innerHTML='<h2>試算結果</h2><p class="hint">輸入保費與進場淨值後顯示結果。</p>';lastSummary="";return}
+
+  var stateTxt = !bn ? "請輸入基準日淨值" : !reg ? "基準日淨值 "+nav2(bn)+" < 8：當月不撥回" : bon ? "定期撥回＋加碼撥回" : "只有定期撥回（檢視期間未曾 > 10.3）";
+  var sReg=U*REG, sBoth=U*(REG+BONUS);
+  var html='<h2>試算結果</h2>'+
+    '<div class="total'+(m?"":" zero")+'"><div class="l">每月撥回（不保證）· '+esc(stateTxt)+'</div>'+
+    '<div class="v num">'+fmt(m)+'<small>元 / 月</small></div>'+
+    '<div class="y">約 <span class="num">'+fmt(m*12)+'</span> 元 / 年 · 年化撥回率 <span class="num">'+(total?(m*12/total*100).toFixed(2):"0")+'%</span>（÷ 總保費）</div></div>'+
+    '<div class="kv">'+
+      '<div class="k">總保費</div><div class="v">'+fmt(total)+'</div>'+
+      '<div class="k">保費費用<small>'+rows.map(function(r){return pct(r.r)}).join("、")+'</small></div><div class="v">'+fmt(fee)+'</div>'+
+      '<div class="k">淨保費</div><div class="v">'+fmt(total-fee)+'</div>'+
+      '<div class="k">單位數</div><div class="v">'+fmt2(U)+'</div>'+
+      '<div class="k">定期撥回<small>'+U.toFixed(2)+' × 0.042</small></div><div class="v'+(reg?"":" dim")+'">'+fmt(mReg)+'</div>'+
+      '<div class="k">加碼撥回<small>'+U.toFixed(2)+' × 0.050</small></div><div class="v '+(bon?"gold":"dim")+'">'+fmt(mBon)+'</div>'+
+    '</div>'+
+    '<h3>三種情境對照</h3><div class="tbl-wrap"><table><thead><tr><th>情境</th><th class="r">每月</th><th class="r">每年</th></tr></thead><tbody>'+
+      '<tr'+(!reg?' class="cur"':'')+'><td>基準日 &lt; 8：不撥回</td><td class="r">0</td><td class="r">0</td></tr>'+
+      '<tr'+(reg&&!bon?' class="cur"':'')+'><td>基準日 ≥ 8，未曾 &gt; 10.3</td><td class="r">'+fmt(sReg)+'</td><td class="r">'+fmt(sReg*12)+'</td></tr>'+
+      '<tr'+(bon?' class="cur"':'')+'><td>基準日 ≥ 8，曾 &gt; 10.3</td><td class="r">'+fmt(sBoth)+'</td><td class="r">'+fmt(sBoth*12)+'</td></tr>'+
+    '</tbody></table></div>'+
+    (m>0&&m<1000?'<div class="warn">每月撥回未滿 1,000 元。條款規定收益分配未達 1,000 元不匯款、改投入停泊標的；是否適用資產撥回請向公司確認。</div>':'')+
+    '<div class="actions"><button type="button" class="btn" id="copyBtn">複製摘要</button><span class="toast" id="toast" hidden></span></div>';
+  box.innerHTML=html;
+
+  var lines=["【BVA3 撥回試算】客戶類型："+TYPE_NAME[state.type]];
+  rows.forEach(function(r){lines.push((r.i===0?"躉繳":"超額"+r.i)+" "+fmt(r.amt)+" 元｜進場淨值 "+r.nav+"｜費用率 "+pct(r.r)+"｜"+fmt2(r.u)+" 單位")});
+  lines.push("總保費 "+fmt(total)+"｜總單位數 "+fmt2(U));
+  lines.push("條件：基準日淨值 "+(bn?nav2(bn):"—")+"、檢視期間"+(ex?"曾":"未曾")+" > 10.3 → "+stateTxt);
+  lines.push("每月撥回 "+fmt(m)+"（定期 "+fmt(mReg)+" ＋ 加碼 "+fmt(mBon)+"）｜每年約 "+fmt(m*12));
+  lines.push("情境：不撥回 0／僅定期 "+fmt(sReg)+"／定期＋加碼 "+fmt(sBoth)+"（元/月）");
+  lines.push("※ 撥回金額不保證，可能含本金；內部參考。");
+  lastSummary=lines.join("\n");
+  $("copyBtn").addEventListener("click",copySummary);
+}
+
+function copySummary(){
+  var t=$("toast");
+  function done(ok){t.hidden=false;t.textContent=ok?"已複製，可貼到 LINE":"複製失敗，請手動選取";setTimeout(function(){t.hidden=true},2500)}
+  function fallback(){
+    var ta=document.createElement("textarea");ta.value=lastSummary;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();
+    var ok=false;try{ok=document.execCommand("copy")}catch(e){}document.body.removeChild(ta);done(ok);
+  }
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(lastSummary).then(function(){done(true)},fallback)}else fallback();
+}
+
+/* ---------- reverse calc ---------- */
+function need(target,rate,nav,fr){return Math.ceil(target*nav/(rate*(1-fr)))}
+function premiumFor(target,rate,nav,type){
+  var low=need(target,rate,nav,TYPE_RATE[type]);
+  var p = low<TIER ? low : Math.max(need(target,rate,nav,HIGH_RATE),TIER);
+  while(units(p,type,nav)*rate<target) p++;   // guard rounding
+  return p;
+}
+$("target").addEventListener("input",function(){var v=parseMoney(this.value);this.value=v?v.toLocaleString("zh-TW"):"";rev()});
+$("targetQuick").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;$("target").value=(+b.dataset.v).toLocaleString("zh-TW");rev()});
+$("revNav").addEventListener("input",rev);
+$("revMode").addEventListener("click",function(e){
+  var b=e.target.closest("button"); if(!b) return; state.revMode=b.dataset.mode;
+  this.querySelectorAll("button").forEach(function(x){x.setAttribute("aria-pressed",x===b?"true":"false")}); rev();
+});
+function rev(){
+  var t=parseMoney($("target").value), nav=parseNum($("revNav").value), box=$("revResult");
+  if(!t||!nav){box.innerHTML='<h2>需要的保費</h2><p class="hint">輸入目標金額與進場淨值。</p>';return}
+  var rate=state.revMode==="both"?REG+BONUS:REG, p=premiumFor(t,rate,nav,state.type);
+  var p10k=Math.ceil(p/10000)*10000;
+  var u=units(p10k,state.type,nav), fr=feeRate(p10k,state.type);
+  var note="";
+  if(p<MIN_FIRST) note='<div class="warn">算出的保費低於躉繳下限 30 萬元；投保 30 萬時每月約 '+fmt(units(MIN_FIRST,state.type,nav)*rate)+' 元。</div>';
+  if(p>MAX_TOTAL) note='<div class="warn">超過累計保費上限 8,000 萬元，無法達到這個目標。</div>';
+  var tierNote = p===TIER ? '<p class="hint">剛好落在 200 萬：用 2.7% 費率計算比未滿 200 萬更划算。</p>' : "";
+  box.innerHTML='<h2>需要的保費</h2>'+
+    '<div class="total"><div class="l">每月 '+fmt(t)+' 元（'+(state.revMode==="both"?"定期＋加碼":"只靠定期")+'）</div>'+
+    '<div class="v num">'+fmt(p10k)+'<small>元</small></div>'+
+    '<div class="y">精算最低 <span class="num">'+fmt(p)+'</span> 元，上方為進位到萬</div></div>'+
+    tierNote+
+    '<div class="kv">'+
+      '<div class="k">費用率</div><div class="v">'+pct(fr)+'</div>'+
+      '<div class="k">單位數</div><div class="v">'+fmt2(u)+'</div>'+
+      '<div class="k">只有定期撥回時<small>基準日 ≥ 8</small></div><div class="v">'+fmt(u*REG)+' / 月</div>'+
+      '<div class="k">定期＋加碼時<small>曾 &gt; 10.3</small></div><div class="v gold">'+fmt(u*(REG+BONUS))+' / 月</div>'+
+      '<div class="k">基準日 &lt; 8 時</div><div class="v dim">0</div>'+
+    '</div>'+note+
+    '<div class="actions"><button type="button" class="btn sec" id="toCalc">帶入撥回試算</button></div>';
+  $("toCalc").addEventListener("click",function(){
+    state.pays=[{amt:Math.max(p10k,MIN_FIRST),nav:nav}]; renderPays(); calc(); showTab("calc"); window.scrollTo({top:0});
+  });
+}
+
+/* ---------- NAV chart & month table ---------- */
+function renderChart(){
+  var W=680,H=250,L=44,R=64,T=16,B=30, n=NAVS.length;
+  var vals=NAVS.map(function(x){return x.v});
+  var lo=Math.min.apply(null,vals), hi=Math.max(Math.max.apply(null,vals),BONUS_TH);
+  lo=Math.floor((lo-0.05)*10)/10; hi=Math.ceil((hi+0.05)*10)/10;
+  var step=(hi-lo)>1.2?0.5:(hi-lo)>0.6?0.2:0.1;
+  function x(i){return L+(n===1?0:i*(W-L-R)/(n-1))}
+  function y(v){return T+(hi-v)/(hi-lo)*(H-T-B)}
+  var s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="超鑫動單位淨值走勢">';
+  for(var g=Math.ceil(lo/step)*step; g<=hi+1e-9; g+=step){
+    var gy=y(g).toFixed(1); s+='<line class="grid-l" x1="'+L+'" x2="'+(W-R)+'" y1="'+gy+'" y2="'+gy+'"/><text class="axis" x="'+(L-6)+'" y="'+(+gy+4)+'" text-anchor="end">'+g.toFixed(1)+'</text>';
+  }
+  if(BONUS_TH<=hi&&BONUS_TH>=lo){var ty=y(BONUS_TH).toFixed(1);s+='<line class="th" x1="'+L+'" x2="'+(W-R)+'" y1="'+ty+'" y2="'+ty+'"/><text class="th-l" x="'+(W-R+4)+'" y="'+(+ty+4)+'">加碼 10.3</text>'}
+  if(REG_TH<=hi&&REG_TH>=lo){var ry=y(REG_TH).toFixed(1);s+='<line class="th" x1="'+L+'" x2="'+(W-R)+'" y1="'+ry+'" y2="'+ry+'" style="stroke:var(--stop)"/><text class="th-l" x="'+(W-R+4)+'" y="'+(+ry+4)+'" style="fill:var(--stop)">撥回 8</text>'}
+  var pts=NAVS.map(function(p,i){return x(i).toFixed(1)+","+y(p.v).toFixed(1)}).join(" ");
+  s+='<polygon class="area" points="'+x(0).toFixed(1)+','+(H-B)+' '+pts+' '+x(n-1).toFixed(1)+','+(H-B)+'"/>';
+  s+='<polyline class="line" points="'+pts+'"/>';
+  // x labels: first of each month
+  var seen={};
+  NAVS.forEach(function(p,i){var k=p.d.slice(0,7);if(!seen[k]){seen[k]=1;s+='<text class="axis" x="'+x(i).toFixed(1)+'" y="'+(H-10)+'" text-anchor="'+(i===0?"start":"middle")+'">'+(+p.d.slice(5,7))+' 月</text>'}});
+  MONTHS.forEach(function(mo){if(mo.base){var i=NAVS.indexOf(mo.base);s+='<circle class="base" cx="'+x(i).toFixed(1)+'" cy="'+y(mo.base.v).toFixed(1)+'" r="4.5"/>'}});
+  s+='<circle class="last" cx="'+x(n-1).toFixed(1)+'" cy="'+y(LATEST.v).toFixed(1)+'" r="4"/><text class="last-l" x="'+(x(n-1)+8).toFixed(1)+'" y="'+(y(LATEST.v)+4).toFixed(1)+'">'+nav2(LATEST.v)+'</text>';
+  s+='</svg>';
+  $("chart").innerHTML=s;
+}
+function renderMonths(){
+  var h='<thead><tr><th>撥回月份</th><th>基準日</th><th class="r">基準日淨值</th><th>檢視期間</th><th class="r">期間最高</th><th>判定</th></tr></thead><tbody>';
+  MONTHS.slice().reverse().forEach(function(mo){
+    var res = mo.pending
+      ? (mo.hit?'<span class="chip gold">加碼已觸發，待基準日</span>':'<span class="chip mute">進行中</span>')
+      : (!mo.reg?'<span class="chip stop">不撥回</span>':mo.bonus?'<span class="chip gold">定期＋加碼</span>':'<span class="chip ok">定期撥回</span>');
+    h+='<tr'+(mo.pending?' class="cur"':'')+'><td>'+mo.y+'/'+mo.m+'</td><td>'+(mo.base?md(mo.base.d):md(mo.target)+(mo.target<=TODAY?'（淨值待公布）':'（未到）'))+'</td>'+
+      '<td class="r">'+(mo.base?nav2(mo.base.v):"—")+'</td>'+
+      '<td>'+(mo.start?md(mo.start)+'–'+(mo.base?md(mo.base.d):"至今"):"—")+'</td>'+
+      '<td class="r">'+(mo.max?nav2(mo.max.v):"—")+'</td><td>'+res+'</td></tr>';
+  });
+  $("monthTbl").innerHTML=h+'</tbody>';
+}
+
+/* ---------- boot ---------- */
+renderStrip(); syncType(); renderPays(); condDefaults(); calc();
+$("revNav").value=nav2(LATEST.v); $("revNavHint").textContent="預設為最新淨值 "+nav2(LATEST.v)+"（"+md(LATEST.d)+"）"; rev();
+renderMonths();
+var t0=store("tab"); showTab(t0==="rev"||t0==="nav"?t0:"calc");
+})();
+</script>
+
+</body>
+</html>
